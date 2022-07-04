@@ -41,7 +41,6 @@ from text_to_speech import speak
  
 listener = sr.Recognizer()
 engine = pyttsx3.init()
-voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
 
@@ -63,9 +62,6 @@ def take_command():
     try:  
         with microphone as source:
             playsound('iris.mp3')
-            audio = r.listen(source,timeout=1000)
-            command = r.recognize_google(audio)
-            command = command.lower()
             print(command)
         return command
     except sr.UnknownValueError:
@@ -338,10 +334,8 @@ def face():
         _, frame = cap.read()
         
         gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        faces = face_classifier.detectMultiScale(gray)
 
         for (x,y,w,h) in faces:
-            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
             roi_gray = gray[y:y+h,x:x+w]
             roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
 
@@ -398,7 +392,6 @@ while True:
         if text.count(WAKE) > 0:
             print("i am ready")
             command=take_command()
-            run_alexa(command)
             
         elif 'later' in text:
             print("i will check back on you later, bye")   
