@@ -61,7 +61,10 @@ def take_command():
     microphone = sr.Microphone()
     try:  
         with microphone as source:
-            playsound('iris.mp3')
+            playsound('song.mp3')  # Modified line: changed from 'iris.mp3' to 'song.mp3'
+            audio = r.listen(source,timeout=1000)
+            command = r.recognize_google(audio)
+            command = command.lower()
             print(command)
         return command
     except sr.UnknownValueError:
@@ -392,7 +395,7 @@ while True:
         if text.count(WAKE) > 0:
             print("i am ready")
             command=take_command()
-            
+            run_alexa(command)
         elif 'later' in text:
             print("i will check back on you later, bye")   
             talk("i will check back on you later, bye")  
