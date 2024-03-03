@@ -41,21 +41,17 @@ from text_to_speech import speak
  
 listener = sr.Recognizer()
 engine = pyttsx3.init()
+voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
-
 
 def talk1(text):
     engine.say(text)
     engine.runAndWait()
 
-
 def talk(text):
     speak(text,'en',save=True,file='song.mp3', speak=True)
 
-
-
 def take_command():
-    
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
