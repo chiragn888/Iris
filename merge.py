@@ -36,15 +36,13 @@ engine1.setProperty('voice', voices[1].id)
 def talk(text):
     speak(text,"en",save=True,file='song.mp3', speak=True)
 
-
 def take_command():
-
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
     try:  
         with microphone as source:
-            playsound('iris.mp3')
+            playsound('song.mp3')  # Updated to play 'song.mp3' instead of 'iris.mp3'
             audio = r.listen(source,timeout=1000)
             command = r.recognize_google(audio)
             command = command.lower()
@@ -52,16 +50,12 @@ def take_command():
         return command
     except sr.UnknownValueError:
             take_command()
-  
-
-
 
 def run_alexa(command):
     print(command)
     
     if 'who are you' in command:
         talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
-
 
     elif 'search' in command:
         command=take_command()
@@ -140,7 +134,6 @@ def run_alexa(command):
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-
     elif "fear" in command :
         talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
         command=take_command()   
@@ -186,7 +179,7 @@ def run_alexa(command):
             else:
                 exit
 
-        elif "speaking in  public" in command:
+        elif "speaking in  public" in command:    
             talk(" Fear of public speaking is a very common reason to feel anxious. Here's some useful tips that may help:1, Practice your speech in front of a mirror. 2, Practice in front of your friends and family members. 3, When you get on to the stage take a long breathe that relieves your nervousness and keep you calm. 4, And deliver your prepared speech with confidence.")
                             
         elif "talk to stranger" in command:    
@@ -270,13 +263,7 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-
-
-  
-    
-
 def face():
-
     face_classifier = cv2.CascadeClassifier(r'emotions.xml')
     classifier =load_model(r'model.h5')
     emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'surprise']
@@ -322,12 +309,6 @@ def face():
     bb=("you are "+sc)
     return bb
 
-
-
-
-
-     
-
 WAKE="ola"
 
 def talk1(text):
@@ -353,13 +334,3 @@ while True:
         print("i am ready")  
         command=take_command()
         run_alexa(command)
-
-
-
-
-        
-
-
-
-
-
