@@ -12,14 +12,11 @@ import pyjokes
 import requests
 from bs4 import BeautifulSoup
 
-
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
-
 def talk(text):
-    ##########
     engine.say(text)
     engine.runAndWait()
 
@@ -30,63 +27,22 @@ def close():
     exit(0)
 
 def take_command():
-
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
     try:  
         with microphone as source:
-            playsound('iris.mp3')
-            audio = r.listen(source,timeout=1000)
+            playsound('song.mp3')  # Modified line: Replaced 'iris.mp3' with 'song.mp3'
+            audio = r.listen(source, timeout=1000)
             command = r.recognize_google(audio)
             command = command.lower()
             print(command)
         return command
     except sr.UnknownValueError:
             make()
-  
 
 def run_alexa(command):
     print(command)
-    '''if 'play' in command:
-        song = command.replace('play', '')
-        talk('playing ' + song)
-        pywhatkit.playonyt(song)
-    
-    elif 'time' in command:
-        time = datetime.datetime.now().strftime('%I:%M %p')
-        talk('Current time is ' + time)
-    
-    elif 'date' in command:
-        data = datetime.datetime.now()
-        talk('Today is '+ data)
-    
-    elif 'are you single' in command:
-        talk('I am in a relationship with wifi')
-    
-    elif 'joke' in command:
-        talk(pyjokes.get_joke())  
-    
-    elif 'destroy yourself' in  command:
-        talk("noises,ok-destroyed,but why do you want me to destruct,I am unhappy")
-    
-    elif 'are you married' in command:
-        list=["I am happy by myself,I dont want to share my assests.","I am happy all alone,I don't have to argue through my life","I am happy by myself,don't you wanna be happy?"]
-        n = random.randint(0,2)
-        talk(list[n])
-
-    elif 'marry me' in command:
-        list=["we can marry but virtually","I wish i could be your soulmate","you are too good for marriage ,why don't you find someone better"]
-        n = random.randint(0,2)
-        talk(list[n])
-
-    elif 'who are you' in command:
-        talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
-
-    elif'I am naked' in command:
-        list=("too good to be in a skin","go out to check out the weather!!","go take bath","I am nervous can't see you like this","do wear some clothing!")
-        n = random.randint(0,4)
-        talk(list[n])'''
 
     if ('search') in command:
         command=take_command()
@@ -164,7 +120,6 @@ def run_alexa(command):
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-
     elif "i am nervous" in command :
         talk("Im sorry to hear that. sometimes it helps just to breathe.if you can tell me what you're nervous about, I may be able to help you better.")
         command=take_command()   
@@ -177,7 +132,6 @@ def run_alexa(command):
             command=take_command()
             if "search" in command:
                 talk("")
-                #########
             elif "alarm" in command:
                 talk("what time do u want me to set alarm")
                 command=take_command()
@@ -283,7 +237,6 @@ def run_alexa(command):
                  if command!=None and command!="no":
                     soup = BeautifulSoup(pywhatkit.search(command), "html.parser")
                     talk(soup.title.text)
-                        
 
     elif 'get lost' in command:
         close()
@@ -301,10 +254,3 @@ while True:
         print("i am ready")  
         command=take_command()
         run_alexa(command)
-
-
-      
-     
-    
-
-    
