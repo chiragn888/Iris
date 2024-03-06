@@ -36,9 +36,7 @@ engine1.setProperty('voice', voices[1].id)
 def talk(text):
     speak(text,"en",save=True,file='song.mp3', speak=True)
 
-
 def take_command():
-
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
@@ -52,16 +50,12 @@ def take_command():
         return command
     except sr.UnknownValueError:
             take_command()
-  
-
-
 
 def run_alexa(command):
     print(command)
     
     if 'who are you' in command:
         talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
-
 
     elif 'search' in command:
         command=take_command()
@@ -139,7 +133,6 @@ def run_alexa(command):
                     pywhatkit.playonyt(command)
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
-
 
     elif "fear" in command :
         talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
@@ -270,72 +263,60 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-
-
-  
-    
-
 def face():
-
     face_classifier = cv2.CascadeClassifier(r'emotions.xml')
-    classifier =load_model(r'model.h5')
-    emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'surprise']
+    classifier = load_model(r'model.h5')
+    emotion_labels = ['angry', '', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 
     cap = cv2.VideoCapture(0)
 
     labels = []
-    count=0
-    while count <30:
-        count+=1
+    count = 0
+    while count < 30:
+        count += 1
         _, frame = cap.read()
         
-        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_classifier.detectMultiScale(gray)
 
-        for (x,y,w,h) in faces:
-            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
-            roi_gray = gray[y:y+h,x:x+w]
-            roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            roi_gray = gray[y:y+h, x:x+w]
+            roi_gray = cv2.resize(roi_gray, (48, 48), interpolation=cv2.INTER_AREA)
 
-            if np.sum([roi_gray])!=0:
-                roi = roi_gray.astype('float')/255.0
+            if np.sum([roi_gray]) != 0:
+                roi = roi_gray.astype('float') / 255.0
                 roi = img_to_array(roi)
-                roi = np.expand_dims(roi,axis=0)
+                roi = np.expand_dims(roi, axis=0)
 
                 prediction = classifier.predict(roi)[0]
-                label=emotion_labels[prediction.argmax()]
-                label_position = (x,y)
-                cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                label = emotion_labels[prediction.argmax()]
+                label_position = (x, y)
+                cv2.putText(frame, label, label_position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 labels.append(label)
                 print(labels)
                 
             else:
-                cv2.putText(frame,'No Faces',(30,80),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                cv2.putText(frame, 'No Faces', (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         
-        cv2.imshow('Emotion Detector',frame)
+        cv2.imshow('Emotion Detector', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
    
     cap.release()
     cv2.destroyAllWindows()
-    sc=max(set(labels), key = labels.count)
-    bb=("you are "+sc)
+    sc = max(set(labels), key=labels.count)
+    bb = ("you are " + sc)
     return bb
 
-
-
-
-
-     
-
-WAKE="ola"
+WAKE = "ola"
 
 def talk1(text):
     engine1.say(text)
 
-sca=face()
-ccc=sca
-tex=("you are"+ccc)
+sca = face()
+ccc = sca
+tex = ("you are" + ccc)
 
 if 'sad' in tex:
         talk('you are so sad today, can i know the reason ?')
@@ -347,19 +328,9 @@ else:
         talk('you dont have any expression are u human?')    
 
 while True:  
-    text=take_command()
-    if text!=None:
+    text = take_command()
+    if text != None:
      if text.count(WAKE) > 0:
         print("i am ready")  
-        command=take_command()
+        command = take_command()
         run_alexa(command)
-
-
-
-
-        
-
-
-
-
-
