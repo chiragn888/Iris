@@ -1,106 +1,42 @@
-from crypt import methods
-from flask import Flask, render_template,request,render_template, session, request, jsonify, url_for, redirect
-from distutils import command
-from email.mime import audio
-from tkinter import NO
-from pyparsing import actions
-import speech_recognition as sr
-import pyttsx3
-from cProfile import run
-from distutils import command
-from email.mime import audio
-from tkinter import NO, Label, PhotoImage
-from pyparsing import re
-import speech_recognition as sr
-import pyttsx3
-import pywhatkit
-import urllib.request
-import datetime
-import wikipedia
-from sys import argv
-import random
-from playsound import playsound
-from text_to_speech import speak
-import pyjokes
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 import requests
-import multiprocessing
-import time
 from bs4 import BeautifulSoup
 from keras.models import load_model
-from time import sleep
-from keras.utils import img_to_array
-from keras.preprocessing import image
 import cv2
 import numpy as np
-import tkinter as tk
-from PIL import Image, ImageTk
-from itertools import count, cycle
-from PIL import Image                                                                                
-from cProfile import run
-from distutils import command
-from email.mime import audio
-from tkinter import NO, Label, PhotoImage
-from pyparsing import re
 import speech_recognition as sr
 import pyttsx3
 import pywhatkit
-import urllib.request
 import datetime
-import time
 import wikipedia
-from sys import argv
-import pyautogui
 import random
+import pyjokes
+import pyautogui
 import keyboard as k
-from googletrans import Translator as Trans   
+from googletrans import Translator
 from gtts import gTTS
 from playsound import playsound
-from text_to_speech import speak
-import pyjokes
-from cgitb import text
-from playsound import playsound as PS 
-import requests
 import multiprocessing
-from bs4 import BeautifulSoup
-from keras.models import load_model
 from time import sleep
 from keras.utils import img_to_array
 from keras.preprocessing import image
-import cv2
-import numpy as np
 import tkinter as tk
 from PIL import Image, ImageTk
 from itertools import count, cycle
-from PIL import Image       
-import os          
-from googletrans import Translator
+import os
 from text_to_speech import speak
 
-listener = sr.Recognizer()
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
-
-
 app = Flask(__name__)
-@app.route('/')
 
+@app.route('/')
 def display():
     return render_template('mindex.html')
-          
- 
+
 def talk1(text):
     engine.say(text)
     engine.runAndWait()
 
-
-def talk(text):
-    speak(text,'en',save=True,file='song.mp3', speak=True)
-
-
-
 def take_command():
-    
     r = sr.Recognizer()
     r.energy_threshold = 2400 
     microphone = sr.Microphone()
@@ -113,10 +49,7 @@ def take_command():
             print(command)
         return command
     except sr.UnknownValueError:
-            take_command()
-  
-
-
+        take_command()
 
 def run_alexa(command):
     print(command)
@@ -124,7 +57,6 @@ def run_alexa(command):
     if 'who are you' in command:
         talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
 
-#####################
     elif 'search' in command:
         command=take_command()
         command=command.replace("search"," ")
@@ -138,8 +70,7 @@ def run_alexa(command):
         result = soup.find(class_='VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf').get_text()
         print(result)
         talk(result)
-#VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf
-#MUxGbd wuQ4Ob WZ8Tjf
+
     elif 'play' in command:
         song = command.replace('play', '')
         talk('playing ' + song)
@@ -148,7 +79,7 @@ def run_alexa(command):
     elif 'time' in command:
         time = datetime.datetime.now().strftime('%I:%M %p')
         talk('Current time is ' + time)
-##############
+
     elif 'information' in command:
         user_query = command
         URL = "https://www.google.co.in/search?q=" + user_query
@@ -202,7 +133,6 @@ def run_alexa(command):
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-###############################(check)
     elif 'trouble' in command:
         talk('do you want me to send an sos!')
         command=take_command()
@@ -231,8 +161,6 @@ def run_alexa(command):
 
             else:
                 talk('take care!')         
-
-
 
     elif "fear" in command :
         talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
@@ -364,12 +292,9 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-  
-
 def face():
-
     face_classifier = cv2.CascadeClassifier(r'emotions.xml')
-    classifier =load_model(r'model.h5')
+    classifier = load_model(r'model.h5')
     emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'angry']
 
     cap = cv2.VideoCapture(0)
@@ -413,7 +338,6 @@ def face():
     bb=("you are "+sc)
     return bb
 
-
 WAKE="ola"
 
 if __name__ =='__main__':
@@ -445,5 +369,3 @@ while True:
             print("i am ready")
             command=take_command()
             run_alexa(command)
-
-#FLASK_APP="app.py" flask run
