@@ -1,4 +1,3 @@
-from cProfile import run
 from distutils import command
 from email.mime import audio
 from tkinter import NO
@@ -24,6 +23,9 @@ from keras.utils import img_to_array
 from keras.preprocessing import image
 import cv2
 import numpy as np
+import openai
+
+openai.api_key = 'your_openai_api_key_here'
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
@@ -36,9 +38,7 @@ engine1.setProperty('voice', voices[1].id)
 def talk(text):
     speak(text,"en",save=True,file='song.mp3', speak=True)
 
-
 def take_command():
-
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
@@ -52,16 +52,12 @@ def take_command():
         return command
     except sr.UnknownValueError:
             take_command()
-  
-
-
 
 def run_alexa(command):
     print(command)
     
     if 'who are you' in command:
-        talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
-
+        talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually!")    
 
     elif 'search' in command:
         command=take_command()
@@ -87,7 +83,6 @@ def run_alexa(command):
         talk('Current time is ' + time)
 
     elif 'information' in command:
-          
         user_query = command
         URL = "https://www.google.co.in/search?q=" + user_query
         headers = {
@@ -140,7 +135,6 @@ def run_alexa(command):
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-
     elif "fear" in command :
         talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
         command=take_command()   
@@ -158,7 +152,6 @@ def run_alexa(command):
                 if command!=None:
                     talk('alarm set for '+command)  
                     
-
         elif "interview" in command :
             talk("It is normal to feel nervous before an interview. You have to let go of the fear. Think of this as an oppurtunity to dress up and talk about yourself. I hope this will help you relax a bit. if you need me to do anything like set an alarm or reminders please let me know.")
             command=take_command()
@@ -212,7 +205,6 @@ def run_alexa(command):
         command=take_command()
         print(command)
         
-       
         if 'stress' in command:
             talk( "Are you drinking or using drugs to cope with the stress?")       
             talk("Are you getting between 7 and 9 hours of sleep each night?")
@@ -243,7 +235,6 @@ def run_alexa(command):
                 exit            
 
         elif 'failed' in command:   
-
             talk( "dont worry i'm here to cheer you up, every one fails one or the other time in life, take this as your new stone towards achiving your dreams")   
             talk("Here's some motivational videos i found on youtube") 
             list=("One of the Greatest Speeches Ever | Steve Jobs","Steve Harvey's Speech Will Make You Wake Up In Life And Take Action | Motivation","Advice to Young People And His Biggest Regret | Jack Ma | Goal Quest","Most Motivational Speech | Best Inspirational Speech by Sundar Pichai","Dr. APJ Abdul Kalam's Life Advice Will Change Your Future (MUST WATCH) Motivational Speech")
@@ -270,17 +261,8 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-
-
-  
-    
-
 def face():
-
     face_classifier = cv2.CascadeClassifier(r'emotions.xml')
-    classifier =load_model(r'model.h5')
-    emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'surprise']
-
     cap = cv2.VideoCapture(0)
 
     labels = []
@@ -298,16 +280,15 @@ def face():
             roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
 
             if np.sum([roi_gray])!=0:
-                roi = roi_gray.astype('float')/255.0
-                roi = img_to_array(roi)
-                roi = np.expand_dims(roi,axis=0)
+                _, img_encoded = cv2.imencode('.jpg', roi_gray)
+                img_bytes = img_encoded.tobytes()
 
-                prediction = classifier.predict(roi)[0]
-                label=emotion_labels[prediction.argmax()]
+                response = openai.Image.create(file=img_bytes, model="gpt-4o")
+                label = response['data'][0]['label']
                 label_position = (x,y)
                 cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
                 labels.append(label)
-                print(labels)
+                print(f"Detected emotion: {label}")
                 
             else:
                 cv2.putText(frame,'No Faces',(30,80),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
@@ -321,12 +302,6 @@ def face():
     sc=max(set(labels), key = labels.count)
     bb=("you are "+sc)
     return bb
-
-
-
-
-
-     
 
 WAKE="ola"
 
@@ -353,13 +328,3 @@ while True:
         print("i am ready")  
         command=take_command()
         run_alexa(command)
-
-
-
-
-        
-
-
-
-
-

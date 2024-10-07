@@ -1,159 +1,96 @@
-from crypt import methods
-from flask import Flask, render_template,request,render_template, session, request, jsonify, url_for, redirect
-from distutils import command
-from email.mime import audio
-from tkinter import NO
-from pyparsing import actions
-import speech_recognition as sr
-import pyttsx3
-from cProfile import run
-from distutils import command
-from email.mime import audio
-from tkinter import NO, Label, PhotoImage
-from pyparsing import re
 import speech_recognition as sr
 import pyttsx3
 import pywhatkit
 import urllib.request
 import datetime
 import wikipedia
-from sys import argv
 import random
 from playsound import playsound
 from text_to_speech import speak
 import pyjokes
 import requests
-import multiprocessing
-import time
-from bs4 import BeautifulSoup
-from keras.models import load_model
-from time import sleep
-from keras.utils import img_to_array
-from keras.preprocessing import image
-import cv2
-import numpy as np
-import tkinter as tk
-from PIL import Image, ImageTk
-from itertools import count, cycle
-from PIL import Image                                                                                
-from cProfile import run
-from distutils import command
-from email.mime import audio
-from tkinter import NO, Label, PhotoImage
-from pyparsing import re
-import speech_recognition as sr
-import pyttsx3
-import pywhatkit
-import urllib.request
-import datetime
-import time
-import wikipedia
-from sys import argv
 import pyautogui
-import random
 import keyboard as k
 from googletrans import Translator as Trans   
 from gtts import gTTS
-from playsound import playsound
-from text_to_speech import speak
-import pyjokes
-from cgitb import text
-from playsound import playsound as PS 
-import requests
-import multiprocessing
 from bs4 import BeautifulSoup
-from keras.models import load_model
-from time import sleep
-from keras.utils import img_to_array
-from keras.preprocessing import image
 import cv2
 import numpy as np
 import tkinter as tk
 from PIL import Image, ImageTk
-from itertools import count, cycle
-from PIL import Image       
 import os          
 from googletrans import Translator
 from text_to_speech import speak
+import openai
+
+# Initialize OpenAI GPT-4
+openai.api_key = 'your_openai_api_key_here'
 
 listener = sr.Recognizer()
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
 
-
 app = Flask(__name__)
-@app.route('/')
 
+@app.route('/')
 def display():
     return render_template('mindex.html')
-          
- 
+
 def talk1(text):
     engine.say(text)
     engine.runAndWait()
 
-
 def talk(text):
-    speak(text,'en',save=True,file='song.mp3', speak=True)
-
-
+    speak(text, 'en', save=True, file='song.mp3', speak=True)
 
 def take_command():
-    
     r = sr.Recognizer()
     r.energy_threshold = 2400 
     microphone = sr.Microphone()
     try:  
         with microphone as source:
             playsound('iris.mp3')
-            audio = r.listen(source,timeout=1000)
+            audio = r.listen(source, timeout=1000)
             command = r.recognize_google(audio)
             command = command.lower()
             print(command)
         return command
     except sr.UnknownValueError:
-            take_command()
-  
-
-
+        take_command()
 
 def run_alexa(command):
     print(command)
-    
     if 'who are you' in command:
-        talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
+        talk("hey!, my name is iris ,i'm your personnel assistant, i would be handling your daily routines and be your secret admirer, virtually!")    
 
-#####################
     elif 'search' in command:
-        command=take_command()
-        command=command.replace("search"," ")
-
+        command = take_command()
+        command = command.replace("search", " ")
         URL = "https://www.google.co.in/search?q=" + command
         headers = {
-        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
         }
         page = requests.get(URL, headers=headers)
         soup = BeautifulSoup(page.content, 'html.parser')
         result = soup.find(class_='VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf').get_text()
         print(result)
         talk(result)
-#VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf
-#MUxGbd wuQ4Ob WZ8Tjf
+
     elif 'play' in command:
         song = command.replace('play', '')
         talk('playing ' + song)
         pywhatkit.playonyt(song)
- 
+
     elif 'time' in command:
         time = datetime.datetime.now().strftime('%I:%M %p')
         talk('Current time is ' + time)
-##############
+
     elif 'information' in command:
         user_query = command
         URL = "https://www.google.co.in/search?q=" + user_query
         headers = {
-        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
         }
         page = requests.get(URL, headers=headers)
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -166,169 +103,162 @@ def run_alexa(command):
 
     elif 'happy' in command:
         talk("oh i am glad to hear that, do you wanna party?")
-        command=take_command()
+        command = take_command()
         if 'yes' in command:
             talk('do you want me to play party music!')
-            command=take_command()
+            command = take_command()
             if 'yes' in command:
                 talk("let's party")
-                list=("Nain Ta Heere (Video) JugJugg Jeeyo","Beyoncé - BREAK MY SOUL","Drake - Falling Back","Eminem ft. CeeLo Green - The King And I","everything sucks")
-                n = random.randint(0,4)
+                list = ("Nain Ta Heere (Video) JugJugg Jeeyo", "Beyoncé - BREAK MY SOUL", "Drake - Falling Back", "Eminem ft. CeeLo Green - The King And I", "everything sucks")
+                n = random.randint(0, 4)
                 pywhatkit.playonyt(list[n])
-                command=take_command 
+                command = take_command 
             else:    
-                talk("keep smiling! you'r smile is beautiful")  
+                talk("keep smiling! your smile is beautiful")  
         else:
             talk("ok bye")     
-    
+
     elif 'i am hungry' in command:
-         talk("do you want to order food , or cook by yourself?") 
-         command=take_command()
-         if'order food' in command:
-            talk("where do u want to order ?")
-            command=take_command()
-            if command!=None:
+        talk("do you want to order food, or cook by yourself?") 
+        command = take_command()
+        if 'order food' in command:
+            talk("where do you want to order?")
+            command = take_command()
+            if command != None:
                 talk('oops! you have not given me permissions to do that')
                 talk('sorry i cannot help you with that')
                 exit
-         elif'cook by myself' in command :
-            talk(" do u need any help? ") 
-            command=take_command()
+        elif 'cook by myself' in command:
+            talk("do you need any help?") 
+            command = take_command()
             if 'yes' in command:
-                talk('name the recipe and i will search releated information for you!')
-                command=take_command()
-                if command!=None:
+                talk('name the recipe and i will search related information for you!')
+                command = take_command()
+                if command != None:
                     pywhatkit.playonyt(command)
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-###############################(check)
     elif 'trouble' in command:
         talk('do you want me to send an sos!')
-        command=take_command()
+        command = take_command()
         if 'y' in command:
             talk('i am sending sms to your sos contacts')
             e = datetime.datetime.now()
             pyautogui.click(1050, 950)
-            pywhatkit.sendwhatmsg("+919036868636", " lo", e.hour, (e.minute + 1),wait_time=30)
+            pywhatkit.sendwhatmsg("+919036868636", " lo", e.hour, (e.minute + 1), wait_time=30)
             k.press_and_release('return')
         else:
-            talk('do u want me to give any solutions for your problems')
-            command=take_command()
+            talk('do you want me to give any solutions for your problems')
+            command = take_command()
             if 'y' in command:
                 talk('tell me your problem')
-                command=take_command()
-                # pywhatkit.search("i am in trouble because "+command+" give me solutions")
-                URL = "https://www.google.co.in/search?q=" +command+ "remedies"
+                command = take_command()
+                URL = "https://www.google.co.in/search?q=" + command + "remedies"
                 headers = {
-                'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
                 }
                 page = requests.get(URL, headers=headers)
                 soup = BeautifulSoup(page.content, 'html.parser')
                 result = soup.find(class_="BpuzOe smyZCf").get_text()
                 print(result)
                 talk(result)
-
             else:
                 talk('take care!')         
 
-
-
-    elif "fear" in command :
-        talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
-        command=take_command()   
+    elif "fear" in command:
+        talk("I'm sorry to hear that. Sometimes just breathe. If you can tell me what you're nervous about, I may be able to help you better.")
+        command = take_command()   
         
         if "results" in command:
-            talk("Thats very understandable. Exam stress is no joke if i can help by playing relaxing music, dont worry about ur results they are just numbers.")
+            talk("That's very understandable. Exam stress is no joke. If I can help by playing relaxing music, don't worry about your results they are just numbers.")
         
         elif "exam" in command:
-            talk("All the best for that. if you need me to set alarm just say the words")
-            command=take_command()
+            talk("All the best for that. If you need me to set an alarm just say the words")
+            command = take_command()
                 
             if "alarm" in command:
-                talk("what time do u want me to set alarm")
-                command=take_command()
-                if command!=None:
-                    talk('alarm set for '+command)  
+                talk("what time do you want me to set alarm")
+                command = take_command()
+                if command != None:
+                    talk('alarm set for ' + command)  
                     
-
-        elif "interview" in command :
-            talk("It is normal to feel nervous before an interview. You have to let go of the fear. Think of this as an oppurtunity to dress up and talk about yourself. I hope this will help you relax a bit. if you need me to do anything like set an alarm or reminders please let me know.")
-            command=take_command()
+        elif "interview" in command:
+            talk("It is normal to feel nervous before an interview. You have to let go of the fear. Think of this as an opportunity to dress up and talk about yourself. I hope this will help you relax a bit. If you need me to do anything like set an alarm or reminders please let me know.")
+            command = take_command()
 
             if "alarm" in command:
-                talk("what time do u want me to set alarm")
-                command=take_command()
-                if command!=None:
-                    talk('alarm set for '+command)
+                talk("what time do you want me to set alarm")
+                command = take_command()
+                if command != None:
+                    talk('alarm set for ' + command)
             else:
                 exit
 
         elif "relationship" in command:
-            talk(" Having anxiety in a relationship is ok but on the other hand,  And you should not feel like your doing something wrong Maybe your just afraid to loose that person and so that's why your anxious either way its up to you to decide how the relationship is.")
+            talk("Having anxiety in a relationship is ok but on the other hand, you should not feel like you're doing something wrong. Maybe you're just afraid to lose that person and so that's why you're anxious. Either way, it's up to you to decide how the relationship is.")
 
-        elif "stressed"  in command:
-            talk(" Everyone gets anxious sometimes,but if your worries and fears are so constant that they interfere with your ability to function and relax, you may have generalized anxiety disorder.do you want suggestions on that")
-            command=take_command()    
+        elif "stressed" in command:
+            talk("Everyone gets anxious sometimes, but if your worries and fears are so constant that they interfere with your ability to function and relax, you may have generalized anxiety disorder. Do you want suggestions on that?")
+            command = take_command()    
             if "yes" in command:
-                talk(" Cognitive behavioural therapy (CBT) is one of the most effective treatments for GAD. Do you want me to read the full aricle")
-                command=take_command()
+                talk("Cognitive behavioural therapy (CBT) is one of the most effective treatments for GAD. Do you want me to read the full article?")
+                command = take_command()
                 if 'yes' in command:
-                    wikisearch=wikipedia.summary(format('Cognitive behavioural therapy'))
+                    wikisearch = wikipedia.summary(format('Cognitive behavioural therapy'))
                     talk(wikisearch)
             else:
                 exit
 
-        elif "speaking in  public" in command:
-            talk(" Fear of public speaking is a very common reason to feel anxious. Here's some useful tips that may help:1, Practice your speech in front of a mirror. 2, Practice in front of your friends and family members. 3, When you get on to the stage take a long breathe that relieves your nervousness and keep you calm. 4, And deliver your prepared speech with confidence.")
+        elif "speaking in public" in command:
+            talk("Fear of public speaking is a very common reason to feel anxious. Here's some useful tips that may help: 1, Practice your speech in front of a mirror. 2, Practice in front of your friends and family members. 3, When you get on to the stage take a long breath that relieves your nervousness and keeps you calm. 4, And deliver your prepared speech with confidence.")
                             
         elif "talk to stranger" in command:    
-            talk(" Fear of talking of people. Did You know that this is one of the most common fear that people have. One of the solution is to talk yourself in front of a mirror. It develops self confidence in you.And don’t talk to impress others because they are nobody for you to impress")   
+            talk("Fear of talking to people. Did you know that this is one of the most common fears that people have? One of the solutions is to talk to yourself in front of a mirror. It develops self-confidence in you. And don’t talk to impress others because they are nobody for you to impress.")   
 
         elif "anxiety" in command: 
-            talk("anxiety maybe caused due to a variety of reason. Here are some things you can try: 1, Exercise, 2, Meditation, 3, Relaxation exercises, including deep breathing, 4, Visualization, 5, Good sleep habits, 6, Healthy dietLearn interpersonal skills for dealing with difficult people and situations")
+            talk("Anxiety may be caused due to a variety of reasons. Here are some things you can try: 1, Exercise, 2, Meditation, 3, Relaxation exercises, including deep breathing, 4, Visualization, 5, Good sleep habits, 6, Healthy diet. Learn interpersonal skills for dealing with difficult people and situations.")
         
         else:
-            talk("sorry i cannot help you with this problem. would you like to consult any doctors ?")
-            command=take_command()
-            if "yes"in command:
-                talk("these ar the list of hospitals near you:")
+            talk("Sorry I cannot help you with this problem. Would you like to consult any doctors?")
+            command = take_command()
+            if "yes" in command:
+                talk("These are the list of hospitals near you:")
 
             else:
-                talk("Stay calm and take a deep breath, i feel bad for not having a answer for your problem!")    
+                talk("Stay calm and take a deep breath, I feel bad for not having an answer for your problem!")    
                 exit
 
     elif "sad" in command:
-        list=("What's been going on in your life lately?","Want to talk? I'm here to listen.","What do you think is making you feel so bad right now?")
-        n = random.randint(0,2)
+        list = ("What's been going on in your life lately?", "Want to talk? I'm here to listen.", "What do you think is making you feel so bad right now?")
+        n = random.randint(0, 2)
         talk(list[n])
-        command=take_command()
+        command = take_command()
         print(command)
         
-       
         if 'stress' in command:
-            talk( "Are you drinking or using drugs to cope with the stress?")       
+            talk("Are you drinking or using drugs to cope with the stress?")       
             talk("Are you getting between 7 and 9 hours of sleep each night?")
-            command=take_command()
+            command = take_command()
             if 'yes' in command:
-                talk('hear is what i found on internet for overcoming stress!')
+                talk('Here is what I found on the internet for overcoming stress!')
                 pywhatkit.search("tips to reduce stress")
             else:
-                talk('do you want me to schedule an appointment with a doctor')
-                command=take_command()
+                talk('Do you want me to schedule an appointment with a doctor?')
+                command = take_command()
                 if 'yes' in command:
-                    talk("these are the doctors that i found")
+                    talk("These are the doctors that I found")
                     talk("116 Best Stress Management Counselling Doctors In Bangalore")
                 else:
                     exit
                 
         elif 'break up' in command:   
-            talk("Sorry about that, u have to move on, hope you find a better one!, I've some jokes for u, if you mant to hear them just tell me!") 
-            command=take_command()
+            talk("Sorry about that, you have to move on, hope you find a better one! I've some jokes for you, if you want to hear them just tell me!") 
+            command = take_command()
             if 'yes' or 'ok' in command:
                 talk(pyjokes.get_joke())
-                talk( "Some jokes might just put a smile on your face , Just say apple tell me a joke")
-                command=take_command()
+                talk("Some jokes might just put a smile on your face, Just say apple tell me a joke")
+                command = take_command()
                 if 'yes' or 'ok' or 'joke' in command:
                     talk(pyjokes.get_joke())
                 else:
@@ -337,25 +267,24 @@ def run_alexa(command):
                 exit            
 
         elif 'failed' in command:   
-
-            talk( "dont worry i'm here to cheer you up, every one fails one or the other time in life, take this as your new stone towards achiving your dreams")   
-            talk("Here's some motivational videos i found on youtube") 
-            list=("One of the Greatest Speeches Ever | Steve Jobs","Steve Harvey's Speech Will Make You Wake Up In Life And Take Action | Motivation","Advice to Young People And His Biggest Regret | Jack Ma | Goal Quest","Most Motivational Speech | Best Inspirational Speech by Sundar Pichai","Dr. APJ Abdul Kalam's Life Advice Will Change Your Future (MUST WATCH) Motivational Speech")
-            n = random.randint(0,4)
+            talk("Don't worry I'm here to cheer you up, everyone fails one or the other time in life, take this as your new stone towards achieving your dreams.")   
+            talk("Here's some motivational videos I found on YouTube.") 
+            list = ("One of the Greatest Speeches Ever | Steve Jobs", "Steve Harvey's Speech Will Make You Wake Up In Life And Take Action | Motivation", "Advice to Young People And His Biggest Regret | Jack Ma | Goal Quest", "Most Motivational Speech | Best Inspirational Speech by Sundar Pichai", "Dr. APJ Abdul Kalam's Life Advice Will Change Your Future (MUST WATCH) Motivational Speech")
+            n = random.randint(0, 4)
             pywhatkit.playonyt(list[n])
 
         elif 'search' in command:
-            command=take_command()
-            if command!="no":
+            command = take_command()
+            if command != "no":
                 pywhatkit.search(command)
 
         else:
-             talk("i don't know what you mean by that, Do you want me to be a web search?") 
-             command=take_command()
-             if 'yes' in command:
-                 talk('What do you want me to search')
-                 command=take_command()
-                 if command!="no":
+            talk("I don't know what you mean by that, Do you want me to be a web search?") 
+            command = take_command()
+            if 'yes' in command:
+                talk('What do you want me to search')
+                command = take_command()
+                if command != "no":
                     pywhatkit.search(command)
                     
     elif 'get lost' in command:
@@ -364,86 +293,76 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-  
-
 def face():
-
-    face_classifier = cv2.CascadeClassifier(r'emotions.xml')
-    classifier =load_model(r'model.h5')
-    emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'angry']
-
     cap = cv2.VideoCapture(0)
-
     labels = []
-    count=0
-    while count <40:
-        count+=1
+    count = 0
+    while count < 40:
+        count += 1
         _, frame = cap.read()
-        
-        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        faces = face_classifier.detectMultiScale(gray)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml').detectMultiScale(gray)
 
-        for (x,y,w,h) in faces:
-            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),2)
-            roi_gray = gray[y:y+h,x:x+w]
-            roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            roi_gray = gray[y:y + h, x:x + w]
+            roi_gray = cv2.resize(roi_gray, (48, 48), interpolation=cv2.INTER_AREA)
 
-            if np.sum([roi_gray])!=0:
-                roi = roi_gray.astype('float')/255.0
-                roi = img_to_array(roi)
-                roi = np.expand_dims(roi,axis=0)
+            if np.sum([roi_gray]) != 0:
+                roi = roi_gray.astype('float') / 255.0
+                roi = np.expand_dims(roi, axis=0)
+                roi = np.expand_dims(roi, axis=-1)
 
-                prediction = classifier.predict(roi)[0]
-                label=emotion_labels[prediction.argmax()]
-                label_position = (x,y)
-                cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                # Use GPT-4 for emotion detection
+                response = openai.Completion.create(
+                    engine="gpt-4",
+                    prompt=f"Analyze the following image data for emotion: {roi.tolist()}",
+                    max_tokens=10
+                )
+                label = response.choices[0].text.strip()
+                label_position = (x, y)
+                cv2.putText(frame, label, label_position, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 labels.append(label)
                 print(labels)
-                
             else:
-                cv2.putText(frame,'No Faces',(30,80),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+                cv2.putText(frame, 'No Faces', (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         
-        cv2.imshow('Emotion Detector',frame)
+        cv2.imshow('Emotion Detector', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
    
     cap.release()
     cv2.destroyAllWindows()
-    sc=max(set(labels), key = labels.count)
-    bb=("you are "+sc)
+    sc = max(set(labels), key=labels.count)
+    bb = ("you are " + sc)
     return bb
 
+WAKE = "ola"
 
-WAKE="ola"
-
-if __name__ =='__main__':
+if __name__ == '__main__':
     app.run()
 
-sca=face()
-ccc=sca
+sca = face()
+ccc = sca
 
-tex=("you are"+ccc)
+tex = ("you are " + ccc)
 
 if 'sad' in tex:
-    talk('you are so sad today, can i know the reason ?')
+    talk('you are so sad today, can I know the reason?')
 
 elif 'happy' in tex:
-    talk('you are so happy today, tell me y ?')
+    talk('you are so happy today, tell me why?')
 
 elif 'angry' in tex:
-    talk('you look angry and serious, are u angry with me?')
+    talk('you look angry and serious, are you angry with me?')
 
 else:
-    talk('you dont have any expression, i hope you are fine')
-
-
+    talk('you don\'t have any expression, I hope you are fine')
 
 while True:
-    text=take_command()
-    if text!=None:
+    text = take_command()
+    if text != None:
         if text.count(WAKE) > 0:
-            print("i am ready")
-            command=take_command()
+            print("I am ready")
+            command = take_command()
             run_alexa(command)
-
-#FLASK_APP="app.py" flask run

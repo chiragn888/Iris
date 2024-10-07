@@ -1,4 +1,3 @@
-from cProfile import run
 from distutils import command
 from email.mime import audio
 from tkinter import NO, Label, PhotoImage
@@ -38,7 +37,10 @@ import os
 from googletrans import Translator
 from text_to_speech import speak
 
- 
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 listener = sr.Recognizer()
 engine = pyttsx3.init()
 engine.setProperty('voice', voices[0].id)
@@ -53,9 +55,7 @@ def talk(text):
     speak(text,'en',save=True,file='song.mp3', speak=True)
 
 
-
 def take_command():
-    
     r = sr.Recognizer()
     r.energy_threshold = 2000 
     microphone = sr.Microphone()
@@ -65,9 +65,7 @@ def take_command():
             print(command)
         return command
     except sr.UnknownValueError:
-            take_command()
-  
-
+        take_command()
 
 
 def run_alexa(command):
@@ -76,7 +74,6 @@ def run_alexa(command):
     if 'who are you' in command:
         talk("hey!, my name is iris ,i'm your personnel assisstant,i would be handling your daily routines and be your secret admirer, virtually! ")    
 
-#####################
     elif 'search' in command:
         command=take_command()
         command=command.replace("search"," ")
@@ -90,8 +87,7 @@ def run_alexa(command):
         result = soup.find(class_='VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf').get_text()
         print(result)
         talk(result)
-#VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf
-#MUxGbd wuQ4Ob WZ8Tjf
+
     elif 'play' in command:
         song = command.replace('play', '')
         talk('playing ' + song)
@@ -100,7 +96,7 @@ def run_alexa(command):
     elif 'time' in command:
         time = datetime.datetime.now().strftime('%I:%M %p')
         talk('Current time is ' + time)
-##############
+
     elif 'information' in command:
         user_query = command
         URL = "https://www.google.co.in/search?q=" + user_query
@@ -154,7 +150,6 @@ def run_alexa(command):
             else:
                 talk('i know you are good at cooking, if you need help let me know')        
 
-###############################(check)
     elif 'trouble' in command:
         talk('do you want me to send an sos!')
         command=take_command()
@@ -170,7 +165,6 @@ def run_alexa(command):
             if 'y' in command:
                 talk('tell me your problem')
                 command=take_command()
-                # pywhatkit.search("i am in trouble because "+command+" give me solutions")
                 URL = "https://www.google.co.in/search?q=" +command+ "remedies"
                 headers = {
                 'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
@@ -183,8 +177,6 @@ def run_alexa(command):
 
             else:
                 talk('take care!')         
-
-
 
     elif "fear" in command :
         talk("Im sorry to hear that. sometimes just breathe. if you can tell me what you're nervous about, I may be able to help you better.")
@@ -271,7 +263,6 @@ def run_alexa(command):
                 if 'yes' in command:
                     talk("these are the doctors that i found")
                     talk("116 Best Stress Management Counselling Doctors In Bangalore")
-                     ### urllib.request.urlopen('https://www.practo.com/search/doctors?results_type=doctor&q=%5B%7B%22word%22%3A%22stress%20management%20counselling%22%2C%22autocompleted%22%3Atrue%2C%22category%22%3A%22service%22%7D%5D&city=Bangalore')
                 else:
                     exit
                 
@@ -317,60 +308,46 @@ def run_alexa(command):
     else:
         talk('Please say the command again.')    
 
-  
 
 def face():
-
-    face_classifier = cv2.CascadeClassifier(r'emotions.xml')
-    classifier =load_model(r'model.h5')
-    emotion_labels = ['angry','','fear','happy','neutral', 'sad', 'angry']
-
     cap = cv2.VideoCapture(0)
-
     labels = []
-    count=0
-    while count <40:
-        count+=1
+    count = 0
+
+    while count < 40:
+        count += 1
         _, frame = cap.read()
-        
-        gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        _, buffer = cv2.imencode('.jpg', rgb_frame)
+        image_bytes = buffer.tobytes()
 
-        for (x,y,w,h) in faces:
-            roi_gray = gray[y:y+h,x:x+w]
-            roi_gray = cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
+        response = openai.Image.create(
+            file=image_bytes,
+            model="gpt-4-image"
+        )
 
-            if np.sum([roi_gray])!=0:
-                roi = roi_gray.astype('float')/255.0
-                roi = img_to_array(roi)
-                roi = np.expand_dims(roi,axis=0)
+        label = response['choices'][0]['text'].strip()
+        labels.append(label)
+        print(labels)
 
-                prediction = classifier.predict(roi)[0]
-                label=emotion_labels[prediction.argmax()]
-                label_position = (x,y)
-                cv2.putText(frame,label,label_position,cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
-                labels.append(label)
-                print(labels)
-                
-            else:
-                cv2.putText(frame,'No Faces',(30,80),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
-        
-        cv2.imshow('Emotion Detector',frame)
+        cv2.putText(frame, label, (30, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.imshow('Emotion Detector', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-   
+
     cap.release()
     cv2.destroyAllWindows()
-    sc=max(set(labels), key = labels.count)
-    bb=("you are "+sc)
+    sc = max(set(labels), key=labels.count)
+    bb = ("you are " + sc)
     return bb
 
 
-WAKE="ola"
+WAKE = "ola"
 
-sca=face()
-ccc=sca
+sca = face()
+ccc = sca
 
-tex=("you are"+ccc)
+tex = ("you are " + ccc)
 
 if 'sad' in tex:
     talk('you are so sad today, can i know the reason ?')
@@ -385,15 +362,14 @@ else:
     talk('you dont have any expression i hope you are fine?')
 
 
-
 while True:
-    text=take_command()
-    if text!=None:
+    text = take_command()
+    if text != None:
         if text.count(WAKE) > 0:
             print("i am ready")
-            command=take_command()
+            command = take_command()
             
         elif 'later' in text:
             print("i will check back on you later, bye")   
             talk("i will check back on you later, bye")  
-            exit(0)        
+            exit(0)
